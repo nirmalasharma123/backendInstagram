@@ -1,0 +1,198 @@
+const postModel = require("../model/postModel");
+const { uploadFile } = require("../controller/aws");
+const userModel = require("../model/userModel");
+const profileModel = require("../model/profile");
+const { follow } = require("./followController");
+const mongoose = require("mongoose")
+
+const creatPost = async function (req, res) {
+  try{
+  let files = req.files;
+  let data = req.body;
+
+  data.postedBy = req.decode;
+  if (files && files.length > 0) {
+    let uploadUrl = await uploadFile(files[0]);
+    data.photo = uploadUrl;
+  } else {
+    return res
+      .status(400)
+      .send({ status: false, message: "Please Provide Image File" });
+  }
+  if (data.caption && data.caption.length > 500) {
+    return res
+      .status(400)
+      .send({ status: false, message: "You have reached max cation length" });
+  }
+  let postCreat = await postModel.create(data);
+
+  await profileModel.findOneAndUpdate(
+    { profileOf: req.decode },
+    { $push: { posts: postCreat._id }, $inc: { postCount: 1 } },
+    { new: true }
+  );
+
+  return res.status(201).send({
+    status: true,
+    message: "post created sucessfully",
+    data: postCreat,
+  })
+ } catch(err){
+    return res.status(500).send({status:false,message:err.message});
+};
+}
+
+
+
+
+let updtepost = async function (req, res) {
+
+  try{
+
+  if (req.params.postId && !mongoose.isValidObjectId(req.params.postId))
+    return res.status(400).send({ status: false, msg: "Invalid postId" });
+  
+  let postId = req.params.postId;
+
+  let findPost = await postModel.findOne({_id:postId,isDeleted:false});
+  if (!findPost)
+    return res.status(400).send({ status: false, message: "NO post found" });
+
+  if (findPost.postedBy != req.decode)
+    return res
+      .status(400)
+      .send({ status: false, message: "excess denied !!!" });
+  let files = req.files;
+
+  let data = req.body;
+  if (files && files.length > 0) {
+    let uploadUrl = await uploadFile(files[0]);
+    data.photo = uploadUrl;
+  }
+
+  if (data.caption && data.caption.length > 500) {
+    return res
+      .status(400)
+      .send({ status: false, message: "You have reached max cation length" });
+  }
+
+  let updatePost = await postModel.findByIdAndUpdate(
+    postId,
+    { $set: { ...data } },
+    { new: true }
+  );
+  return res
+    .status(200)
+    .send({ status: true, message: "Updated sucessfully", data: updatePost });
+
+  }catch(err){
+    return res.status(500).send({status:false,message:err.message})
+};
+
+}
+const deletPost = async function (req, res) {
+
+
+  if (req.params.postId && !mongoose.isValidObjectId(req.params.postId))
+    return res.status(400).send({ status: false, msg: "Invalid postId" });
+  
+
+  let postId = req.params.postId;
+
+  let findPost = await postModel.findOne({_id:postId,isDeleted:false});
+
+  if (!findPost)
+    return res.status(400).send({ status: false, message: "NO post found" });
+
+  if (findPost.postedBy != req.decode)
+    return res
+      .status(400)
+      .send({ status: false, message: "excess denied !!!" });
+
+  await postModel.findByIdAndUpdate(postId, { isDeleted: true }, { new: true });
+
+  await profileModel.findOneAndUpdate(
+    { profileOf: findPost.postedBy },
+    { $pull: { posts: postId }, $inc: { postCount: -1 } },
+    { new: true }
+  );
+
+  return res
+    .status(200)
+    .send({ status: true, message: "Post deleted sucessfully" });
+};
+
+const getAllpostsfollowing = async function (req, res) {
+
+  try{
+
+  const loggedInUserId = req.decode;
+  const loggedInUserProfile = await profileModel.findOne({
+    profileOf: loggedInUserId,
+  });
+
+  if(!loggedInUserId) return res.status(400).send({status:false,message:"No user found"})
+
+  const following = loggedInUserProfile.following;
+  if (following.length == 0)
+   return res.status(404).send({ status: false, message: "No post found" });
+
+    if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
+
+  const posts = await postModel
+    .find({ postedBy: { $in: following } })
+    .populate("postedBy", " userName photo ")
+    .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
+    .sort("-createdAt");
+
+    if(posts.length==0) return res.status(400).send({status:false,message:"No post yet !!"})
+
+  return res.status(200).send({
+    status: true,
+    message: "Following posts fetched successfully",
+    data: posts,
+  })
+  }catch(err){
+    return res.status(500).send({status:false,message:err.message})
+  }
+};
+
+const getAllMyposts = async function (req, res) {
+
+  try{
+  let userId = req.decode;
+
+  let profileFind = await profileModel
+    .findOne({ profileOf: userId })
+    .populate({
+      path: "posts",
+      select: "likesCount  caption commentsCount photo  -_id , ",
+      populate: {
+        path: "postedBy",
+        select: "userName -_id ",
+      },
+    })
+    .select({ posts: 1, postCount: 1, _id: 0 });
+
+  if (!profileFind)
+    return res.status(400).send({ status: false, message: "No post" });
+
+  if(profileFind.posts.length==0) return res.status(400).send({status:false,message:"No posts"})
+
+  return res
+    .status(200)
+    .send({ status: true, message: "all posts", data: profileFind });
+}
+catch(err){
+  return res.status(500).send({status:false,message:err.message})
+  
+}
+};
+
+module.exports = {
+  creatPost,
+  updtepost,
+  deletPost,
+  getAllpostsfollowing,
+  getAllMyposts,
+};
