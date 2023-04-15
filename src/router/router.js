@@ -12,44 +12,44 @@ const profileController = require("../controller/profile")
 ///USER REGISTRATION
 router.post("/singUp",userController.user);
 router.post("/login",userController.login);
-router.put("/updateUser",middleWare.autherization,userController.update)
+router.put("/updateUser",middleWare.authorization,userController.update)
 
 /// POST APIS
-router.post("/creatPost",middleWare.autherization,postController.creatPost);
-router.post("/updatePost/:postId",middleWare.autherization,postController.updtepost);
-router.delete("/deletePost/:postId",middleWare.autherization,postController.deletPost);
-router.get("/getPosts",middleWare.autherization,postController.getAllpostsfollowing);
+router.post("/creatPost",middleWare.authorization,postController.createPost);
+router.post("/updatePost/:postId",middleWare.authorization,postController.updatePost);
+router.delete("/deletePost/:postId",middleWare.authorization,postController.deletePost);
+router.get("/getPosts",middleWare.authorization,postController.getAllPostsFollowing);
 
-router.get("/getMyPosts",middleWare.autherization,postController.getAllMyposts)
+router.get("/getMyPosts",middleWare.authorization,postController.getAllMyPosts)
 
 ///comment ======
 
-router.post("/creatComment/:postId",middleWare.autherization,commentController.creatComment);
-router.get("/getComment/:postId",middleWare.autherization,commentController.getAllComments);
-router.delete("/deletComment/:commentId",middleWare.autherization,commentController.deletComment);
+router.post("/creatComment/:postId",middleWare.authorization,commentController.createComment);
+router.get("/getComment/:postId",middleWare.authorization,commentController.getAllComments);
+router.delete("/deletComment/:commentId",middleWare.authorization,commentController.deleteComment);
 
-router.post("/like/:postId",middleWare.autherization,commentController.likePost);
+router.post("/like/:postId",middleWare.authorization,commentController.likePost);
 
 ///// reply
 
-router.post("/reply/:commentId",middleWare.autherization,replyController.replyOncomment);
-router.delete("/reply/:replyId",middleWare.autherization,replyController.deleteReply)
+router.post("/reply/:commentId",middleWare.authorization,replyController.replyOnComment);
+router.delete("/reply/:replyId",middleWare.authorization,replyController.deleteReply)
 
 //follow
-router.post("/follow/:profileId",middleWare.autherization,followController.follow);
-router.get("/followers/:profileId",middleWare.autherization,followController.followers);
+router.post("/follow/:profileId",middleWare.authorization,followController.follow);
+router.get("/followers/:profileId",middleWare.authorization,followController.followers);
 
-router.get("/following/:profileId",middleWare.autherization,followController.following)
+router.get("/following/:profileId",middleWare.authorization,followController.following)
 
 /// profile;
-router.get("/userProfile/:userName",middleWare.autherization,profileController.getProfile)
-router.post("/updateProfile/:profileId",middleWare.autherization,profileController.updateProfile);
+router.get("/userProfile/:userName",middleWare.authorization,profileController.getProfile)
+router.post("/updateProfile/:profileId",middleWare.authorization,profileController.updateProfile);
 
-router.get("/findUserBypostId/:postId",middleWare.autherization,profileController.getUserById)
+router.get("/findUserBypostId/:postId",middleWare.authorization,profileController.getUserById)
 
-router.get("/myProfile",middleWare.autherization,profileController.getMyProfile);
+router.get("/myProfile",middleWare.authorization,profileController.getMyProfile);
 
-router.get("/getUserByProfileId/:profileId",middleWare.autherization,profileController.getUserByProfileId)
+router.get("/getUserByProfileId/:profileId",middleWare.authorization,profileController.getUserByProfileId)
 
 router.all("/*",(req,res)=>{res.status(404).send({status:false,message:"url not found"})})
 

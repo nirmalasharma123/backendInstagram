@@ -3,9 +3,9 @@ let commentModel = require("../model/commentModel");
 const postModel = require("../model/postModel");
 const mongoose = require("mongoose");
 
-const replyOncomment = async function (req, res) {
-
-    try{
+const replyOnComment = async function (req, res) {
+   
+  try{
   if (req.params.commentId && !mongoose.isValidObjectId(req.params.commentId))
     return res.status(400).send({ status: false, msg: "Invalid commentId" });
 
@@ -14,7 +14,7 @@ const replyOncomment = async function (req, res) {
   if(data.text.trim()=="") return res.status(400).send({status:false,message:" reply is empty"})
 
   
-  let findComment = await commentModel.findOne({ _id: commentId });
+  let findComment = await commentModel.findOne({ _id: commentId ,isDeleted:false});
 
   if (!findComment) return res.status(404).send("no post found");
   if (data.text.length > 500)
@@ -29,20 +29,23 @@ const replyOncomment = async function (req, res) {
   data.postId = findComment.post;
   data.commentId = commentId;
 
-  let creatRepl = await replyModel.create(data);
+  let createReply = await replyModel.create(data);
 
   await commentModel.findByIdAndUpdate(
     commentId,
-    { $push: { reply: creatRepl._id }, $inc: { replyCount: 1 } },
+    { $push: { reply: createReply._id }, $inc: { replyCount: 1 } },
     { new: true }
   );
 
-  return res.status(201).send({ data: creatRepl });
+  return res.status(201).send({ data: createReply });
 }
 catch(err){
     return res.status(500).send({status:false,message:err.message})
 }
 };
+
+
+//////Delete Reply
 
 const deleteReply = async function (req, res) {
 
@@ -77,9 +80,9 @@ const deleteReply = async function (req, res) {
 
   return res
     .status(200)
-    .send({ status: true, message: "Reply deletd secessfylly" });
+    .send({ status: true, message: "Reply deleted successfully" });
 }catch(err){
     return res.status(500).send({status:false,message:err.message})
   }};
 
-module.exports = { replyOncomment, deleteReply };
+module.exports = { replyOnComment, deleteReply };

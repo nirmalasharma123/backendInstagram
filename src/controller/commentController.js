@@ -4,7 +4,10 @@ const mongoose = require("mongoose");
 const replyModel = require("../model/replyModel");
 const profileModel = require("../model/profile")
 
-const creatComment = async function (req, res) {
+
+////creating comments
+
+const createComment = async function (req, res) {
   try {
     if (req.params.postId && !mongoose.isValidObjectId(req.params.postId))
       return res.status(400).send({ status: false, msg: "Invalid postId" });
@@ -22,22 +25,23 @@ const creatComment = async function (req, res) {
     if (!findPost)
       return res.status(404).send({ status: false, message: "Post not found" });
 
-    let creatComment = await commentModel.create(data);
+    let createComment = await commentModel.create(data);
 
     await postModel.findByIdAndUpdate(
       postId,
-      { $push: { comments: creatComment._id }, $inc: { commentsCount: 1 } },
+      { $push: { comments: createComment._id }, $inc: { commentsCount: 1 } },
       { new: true }
     );
 
     return res
       .status(201)
-      .send({ status: true, message: "commented ", data: creatComment });
+      .send({ status: true, message: "commented ", data: createComment });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
 
+///getting all commments
 const getAllComments = async function (req, res) {
   try {
     if (req.params.postId && !mongoose.isValidObjectId(req.params.postId))
@@ -57,11 +61,11 @@ const getAllComments = async function (req, res) {
         isDeleted: 0,
       });
 
-      let findprofile= await profileModel.findOne({profileOf:post.postedBy});
-      if(!findprofile) return res.status(400).send({status:false,messsage:"no user found"});
-      let profilePic= findprofile.profilePic;
+      let findProfile= await profileModel.findOne({profileOf:post.postedBy});
+      if(!findProfile) return res.status(400).send({status:false,message:"no user found"});
+      let profilePic= findProfile.profilePic;
 
-    let findC = await commentModel
+    let findComment = await commentModel
       .find({ post: postId })
       .populate({
         path: "userId",
@@ -79,13 +83,16 @@ const getAllComments = async function (req, res) {
 
     return res
       .status(200)
-      .send({ status: true, message: "All comments", data: [post,profilePic, ...findC] });
+      .send({ status: true, message: "All comments", data: [post,profilePic, ...findComment] });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
 
-const deletComment = async function (req, res) {
+
+/////Deleting the user posts
+
+const deleteComment = async function (req, res) {
   try {
     if (req.params.commentId && !mongoose.isValidObjectId(req.params.commentId))
       return res.status(400).send({ status: false, msg: "Invalid commentId" });
@@ -112,7 +119,7 @@ const deletComment = async function (req, res) {
     }
 
     /// updating the comment db
-    let findComment = await commentModel.findByIdAndDelete(
+    let findComment = await commentModel.findByIdAndUpdate(
       commentId,
       { isDeleted: true },
       { new: true }
@@ -120,18 +127,18 @@ const deletComment = async function (req, res) {
     if (!findComment)
       return res
         .status(404)
-        .send({ status: false, message: "No commnet found" });
+        .send({ status: false, message: "No comments found" });
 
     let postId = findComment.post;
 
-    ///// reducing the total comment fromt the post and pulling out the deleted comment Id
+    ///// reducing the total comment from the post and pulling out the deleted comment Id
     await postModel.findOneAndUpdate(
       { _id: postId },
       { $pull: { comments: commentId }, $inc: { commentsCount: -1 } },
       { new: true }
     );
 
-    ///// deleting all the replyes related to the comment
+    ///// deleting all the reply's related to the comment
     await replyModel.updateMany(
       { commentId: commentId },
       { isDeleted: true },
@@ -140,11 +147,13 @@ const deletComment = async function (req, res) {
 
     return res
       .status(200)
-      .send({ status: true, message: "Comment deletd sucessfylly" });
+      .send({ status: true, message: "Comment deleted successfylly" });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+//liking on post
 
 const likePost = async function (req, res) {
   try {
@@ -182,4 +191,4 @@ const likePost = async function (req, res) {
   }
 };
 
-module.exports = { creatComment, getAllComments, deletComment, likePost };
+module.exports = { createComment, getAllComments, deleteComment, likePost };

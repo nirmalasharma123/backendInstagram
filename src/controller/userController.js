@@ -4,7 +4,9 @@ let bcrypt = require("bcrypt");
 let validator = require("../validation");
 let profileModel = require("../model/profile");
 const joi = require("joi")
-const userSingUP = async function (req, res) {
+
+
+const userSignUP = async function (req, res) {
   try {
     let data = req.body;
     let { error} = validator.userValidationSchema.validate(data);
@@ -64,23 +66,26 @@ let userLogin = async function (req, res) {
     }
   let { email, password } = req.body;
 
-  let finduser = await userModel.findOne({ email: email });
+  let findUser = await userModel.findOne({ email: email });
 
-  if (!finduser)
+  if (!findUser)
     return res.status(404).send({ status: false, message: "user not found" });
 
-  let checkPassword = await bcrypt.compare(password, finduser.password);
+  let checkPassword = await bcrypt.compare(password, findUser.password);
   if (!checkPassword)
     return res
       .status(400)
-      .send({ status: false, message: "Inccorect password" });
+      .send({ status: false, message: "Incorrect password" });
 
-  let token = jwt.sign({ userId: finduser._id.toString() }, "");
-  return res.status(200).send({ staus: true, token: token })
+  let token = jwt.sign({ userId: findUser._id.toString() }, "hgsghsjsjjjjj");
+  return res.status(200).send({ status: true, token: token })
   }catch(err){
     return res.status(500).send({status:false,message:err.message})
 }}
 
+
+
+///update user 
 const updateUserName = async function (req, res) {
   try{
 
@@ -115,7 +120,7 @@ const updateUserName = async function (req, res) {
 
   let updateUser = await userModel
     .findOneAndUpdate({ _id: req.decode }, { ...data }, { new: true })
-    .select({ followers: 0, following: 0, _id: 0 });
+    .select({password:0});
 
   return res
     .status(200)
@@ -125,6 +130,6 @@ const updateUserName = async function (req, res) {
 }
 };
 
-module.exports.user = userSingUP;
+module.exports.user = userSignUP;
 module.exports.login = userLogin;
 module.exports.update = updateUserName;

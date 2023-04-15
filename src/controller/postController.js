@@ -5,7 +5,9 @@ const profileModel = require("../model/profile");
 const { follow } = require("./followController");
 const mongoose = require("mongoose")
 
-const creatPost = async function (req, res) {
+///creating users post 
+
+const createPost = async function (req, res) {
   try{
   let files = req.files;
   let data = req.body;
@@ -24,18 +26,18 @@ const creatPost = async function (req, res) {
       .status(400)
       .send({ status: false, message: "You have reached max cation length" });
   }
-  let postCreat = await postModel.create(data);
+  let postCreate = await postModel.create(data);
 
   await profileModel.findOneAndUpdate(
     { profileOf: req.decode },
-    { $push: { posts: postCreat._id }, $inc: { postCount: 1 } },
+    { $push: { posts: postCreate._id }, $inc: { postCount: 1 } },
     { new: true }
   );
 
   return res.status(201).send({
     status: true,
-    message: "post created sucessfully",
-    data: postCreat,
+    message: "post created successfully",
+    data: postCreate,
   })
  } catch(err){
     return res.status(500).send({status:false,message:err.message});
@@ -43,9 +45,11 @@ const creatPost = async function (req, res) {
 }
 
 
+////////////////////updating the users post
 
 
-let updtepost = async function (req, res) {
+
+let updatePost = async function (req, res) {
 
   try{
 
@@ -90,7 +94,9 @@ let updtepost = async function (req, res) {
 };
 
 }
-const deletPost = async function (req, res) {
+
+/////deleting the posts 
+const deletePost = async function (req, res) {
 
 
   if (req.params.postId && !mongoose.isValidObjectId(req.params.postId))
@@ -119,10 +125,12 @@ const deletPost = async function (req, res) {
 
   return res
     .status(200)
-    .send({ status: true, message: "Post deleted sucessfully" });
+    .send({ status: true, message: "Post deleted successfully" });
 };
 
-const getAllpostsfollowing = async function (req, res) {
+///get all the posts of following users posts
+
+const getAllPostsFollowing = async function (req, res) {
 
   try{
 
@@ -134,10 +142,17 @@ const getAllpostsfollowing = async function (req, res) {
   if(!loggedInUserId) return res.status(400).send({status:false,message:"No user found"})
 
   const following = loggedInUserProfile.following;
-  if (following.length == 0)
-   return res.status(404).send({ status: false, message: "No post found" });
+  if (following.length == 0){
 
-    if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
+      let posts=await postModel.find().populate("postedBy",{userName:1,_id:0}) .populate("postedBy", " userName photo ")
+      .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
+      .sort("-createdAt");  
+
+      return res.status(200).send({status:true,message:"All posts",data:posts})
+
+  }
+       
+   if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
 
   const posts = await postModel
     .find({ postedBy: { $in: following } })
@@ -157,7 +172,10 @@ const getAllpostsfollowing = async function (req, res) {
   }
 };
 
-const getAllMyposts = async function (req, res) {
+
+///// getting all my posts
+
+const getAllMyPosts = async function (req, res) {
 
   try{
   let userId = req.decode;
@@ -190,9 +208,9 @@ catch(err){
 };
 
 module.exports = {
-  creatPost,
-  updtepost,
-  deletPost,
-  getAllpostsfollowing,
-  getAllMyposts,
+  createPost,
+  updatePost,
+  deletePost,
+  getAllPostsFollowing,
+  getAllMyPosts,
 };

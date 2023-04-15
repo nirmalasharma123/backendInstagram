@@ -11,7 +11,7 @@ const userSchema= new mongoose.Schema({
         type:String,
         trim:true,
         required:true,
-        uique:true
+        unique:true
 
     },
     phoneNo:{

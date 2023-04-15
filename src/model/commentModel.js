@@ -20,7 +20,7 @@ const commentsSChema = new mongoose .Schema({
         default: 0,
       },
       reply: [{ type: mongoose.Schema.Types.ObjectId, ref: "reply" }], 
-      isDeletd:{
+      isDeleted:{
         type:Boolean,
         default:false
       }, 

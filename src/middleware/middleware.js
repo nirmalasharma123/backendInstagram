@@ -1,12 +1,12 @@
 let jwt = require("jsonwebtoken");
 
-const autherization = async function(req,res,next){
+const authorization = async function(req,res,next){
     try{
         let token = req.headers["x-api-key"];
   
         if(!token) return res.status(400).send({status:false,message:"token must be present"});
         
-       jwt.verify(token,"xpcdghsuebakxbsgxbhsjsy",function(error,decodedToken){
+       jwt.verify(token,"hgsghsjsjjjjj",function(error,decodedToken){
             if(error){
                 if(error) return res.status(400).send({status:false,message:error.message})
             }
@@ -23,4 +23,4 @@ const autherization = async function(req,res,next){
    }
 };
 
-module.exports={autherization}
+module.exports={authorization}

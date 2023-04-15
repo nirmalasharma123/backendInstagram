@@ -22,9 +22,9 @@ const replySchema = new mongoose.Schema({
     },
     text:{
         type:String,
-        maxlength:500
+        max:500
     },
-    isdeleted:{
+    isDeleted:{
         type:Boolean,
         default:false
     }
