@@ -141,7 +141,7 @@ const getUserById = async function (req, res) {
 
     let postId = req.params.postId;
 
-    console.log(postId);
+    
     let findPost = await postModel.findOne({ _id: postId, isDeleted: false });
     if (!findPost)
       return res.status(404).send({ status: false, message: "No user found" });
@@ -172,12 +172,12 @@ const getUserById = async function (req, res) {
 
 const getUserByProfileId = async function (req, res) {
   try {
-    console.log("enter");
+    
     if (req.params.profileId && !mongoose.isValidObjectId(req.params.profileId))
       return res.status(400).send({ status: false, msg: "Invalid profileId" });
 
     let profileId = req.params.profileId;
-    console.log(profileId);
+    
 
     let findProfile = await profileModel
       .findOne({ _id: profileId })
@@ -189,7 +189,7 @@ const getUserByProfileId = async function (req, res) {
         likesCount: 1,
         _id: 1,
       });
-    console.log(findProfile);
+    
 
     if (!findProfile)
       return res.status(404).send({ status: false, message: "No user found" });

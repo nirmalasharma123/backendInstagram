@@ -87,7 +87,7 @@ let updatePost = async function (req, res) {
   );
   return res
     .status(200)
-    .send({ status: true, message: "Updated sucessfully", data: updatePost });
+    .send({ status: true, message: "Updated successfully", data: updatePost });
 
   }catch(err){
     return res.status(500).send({status:false,message:err.message})
@@ -136,7 +136,7 @@ const getAllPostsFollowing = async function (req, res) {
 
   const loggedInUserId = req.decode;
   const loggedInUserProfile = await profileModel.findOne({
-    profileOf: loggedInUserId,
+    profileOf: loggedInUserId
   });
 
   if(!loggedInUserId) return res.status(400).send({status:false,message:"No user found"})
@@ -144,18 +144,17 @@ const getAllPostsFollowing = async function (req, res) {
   const following = loggedInUserProfile.following;
   if (following.length == 0){
 
-      let posts=await postModel.find().populate("postedBy",{userName:1,_id:0}) .populate("postedBy", " userName photo ")
+      let posts=await postModel.find({isDeleted:false}).populate("postedBy",{userName:1,_id:0}) .populate("postedBy", " userName photo ")
       .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
       .sort("-createdAt");  
 
       return res.status(200).send({status:true,message:"All posts",data:posts})
 
   }
-       
    if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
 
   const posts = await postModel
-    .find({ postedBy: { $in: following } })
+    .find({ postedBy: { $in: following },isDeleted:false })
     .populate("postedBy", " userName photo ")
     .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
     .sort("-createdAt");

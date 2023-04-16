@@ -13,7 +13,7 @@ const postSchema = new mongoose.Schema({
     caption:{
         type:String,
         trim:true,
-        maxlength:500
+        max:500
         
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "userSingUP" }],

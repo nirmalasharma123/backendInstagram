@@ -27,8 +27,9 @@ router.get("/getMyPosts",middleWare.authorization,postController.getAllMyPosts)
 router.post("/creatComment/:postId",middleWare.authorization,commentController.createComment);
 router.get("/getComment/:postId",middleWare.authorization,commentController.getAllComments);
 router.delete("/deletComment/:commentId",middleWare.authorization,commentController.deleteComment);
-
+///like posts
 router.post("/like/:postId",middleWare.authorization,commentController.likePost);
+router.get("/likedUsers/:postId",middleWare.authorization,commentController.getLikedUsers)
 
 ///// reply
 
