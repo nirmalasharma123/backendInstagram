@@ -154,7 +154,7 @@ const getAllPostsFollowing = async function (req, res) {
    if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
 
   const posts = await postModel
-    .find({ postedBy: { $in: following },isDeleted:false })
+    .find({ postedBy: { $in: following }})
     .populate("postedBy", " userName photo ")
     .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
     .sort("-createdAt");

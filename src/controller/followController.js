@@ -60,7 +60,7 @@ const followers = async function (req, res) {
 
     let profileId = req.params.profileId;
 
-    let findFollowers = await profileModel.findOne({ _id: profileId ,isDeleted}).populate('profileOf',{userName:1})
+    let findFollowers = await profileModel.findOne({ _id: profileId }).populate('profileOf',{userName:1})
     if(!findFollowers) return res.status(400).send({status:false,message:"NO user found"})
     let followers = findFollowers.followers;
 
@@ -71,7 +71,7 @@ const followers = async function (req, res) {
     if(followers.length==0) return res.status(400).send({status:false,message:"NO followers"});
 
     let profile = await profileModel
-      .find({ profileOf: { $in: followers } ,isDeleted:false})
+      .find({ profileOf: { $in: followers } })
       .populate("profileOf", { userName: 1 })
       .select({ profilePic: 1, userNam: 1, profileOf: 1 ,_id:1 });
 
