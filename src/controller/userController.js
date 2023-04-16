@@ -75,7 +75,7 @@ let userLogin = async function (req, res) {
   if (!checkPassword)
     return res
       .status(400)
-      .send({ status: false, message: "Incorrect password" });
+      .send({ status: false, message: "Incorrect credential" });
 
   let token = jwt.sign({ userId: findUser._id.toString() }, "hgsghsjsjjjjj");
   return res.status(200).send({ status: true, token: token })
