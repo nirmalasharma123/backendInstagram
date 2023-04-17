@@ -17,7 +17,7 @@ const userSignUP = async function (req, res) {
     let { name, email, password, phoneNo, userName } = data;
 
     let user = await userModel.findOne({
-      $or: [{ email: email }],
+      $or: [{ email: email },{phoneNo:phoneNo},{userName:userName}],
     });
     if (user) {
       if (user.email === email)
@@ -37,6 +37,7 @@ const userSignUP = async function (req, res) {
     const saltRounds = password.length;
     let hash = await bcrypt.hash(password, saltRounds);
     data.password = hash;
+    
     const userCreated = await userModel.create(data);
 
     
