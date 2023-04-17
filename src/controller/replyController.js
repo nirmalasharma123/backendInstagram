@@ -65,7 +65,7 @@ const deleteReply = async function (req, res) {
   if (req.decode != replyFind.userId) {
     if (req.decode != findPostOwnern.postedBy)
       return res
-        .status(404)
+        .status(403)
         .send({ status: false, msg: "You are not authorized" });
   }
 

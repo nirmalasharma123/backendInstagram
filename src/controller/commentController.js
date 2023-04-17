@@ -65,7 +65,7 @@ const getAllComments = async function (req, res) {
 
     let findProfile = await profileModel.findOne({ profileOf: post.postedBy });
     if (!findProfile)
-      return res.status(400).send({ status: false, message: "no user found" });
+      return res.status(404).send({ status: false, message: "no user found" });
     let profilePic = findProfile.profilePic;
 
     let findComment = await commentModel
@@ -116,7 +116,7 @@ const deleteComment = async function (req, res) {
         .status(404)
         .send({ status: false, message: "No comment found" });
 
-    ////checking if the post if of the same user who wants to dealet  the comment
+    ////checking if the post if of the same user who wants to dealeted the comment
     let findPostOwnern = await postModel.findOne({
       _id: findUser.post,
       isDeleted: false,
@@ -125,7 +125,7 @@ const deleteComment = async function (req, res) {
     if (req.decode != findUser.userId) {
       if (req.decode != findPostOwnern.postedBy)
         return res
-          .status(404)
+          .status(403)
           .send({ status: false, msg: "You are not authorized" });
     }
 
@@ -199,6 +199,7 @@ const likePost = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+///getting the liked users
 
 const getLikedUsers = async function (req, res) {
   try {
@@ -229,12 +230,12 @@ const getLikedUsers = async function (req, res) {
     return res
       .status(200)
       .send({
-        status: false,
+        status: true,
         message: "Liked users ",
         data: { userDetails, Likes: [...findProfile] },
       });
   } catch (err) {
-    return res.status(500).send({ status: false, message: err.message });
+    return res.status(500).send({ status: true, message: err.message });
   }
 };
 

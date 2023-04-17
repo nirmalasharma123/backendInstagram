@@ -2,6 +2,8 @@ const profileModel = require("../model/profile");
 const userModel = require("../model/userModel");
 const mongoose = require("mongoose");
 
+///following and unfollowing the user
+
 let follow = async function (req, res) {
   try {
     if (!req.params.profileId)
@@ -52,6 +54,7 @@ let follow = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+////getting all the followers of a user
 
 const followers = async function (req, res) {
   try {
@@ -61,7 +64,7 @@ const followers = async function (req, res) {
     let profileId = req.params.profileId;
 
     let findFollowers = await profileModel.findOne({ _id: profileId }).populate('profileOf',{userName:1})
-    if(!findFollowers) return res.status(400).send({status:false,message:"NO user found"})
+    if(!findFollowers) return res.status(404).send({status:false,message:"NO user found"})
     let followers = findFollowers.followers;
 
     let userDetails={};
@@ -82,6 +85,7 @@ const followers = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+////getting all the following of the user
 
 const following = async function (req, res) {
   try {
@@ -91,7 +95,7 @@ const following = async function (req, res) {
   let profileId = req.params.profileId;
 
   let findFollowers = await profileModel.findOne({ _id: profileId }).populate('profileOf',{userName:1})
-  if(!findFollowers) return res.status(400).send({status:false,message:"NO user found"})
+  if(!findFollowers) return res.status(404).send({status:false,message:"NO user found"})
   let following = findFollowers.following;
 
   let userDetails={};

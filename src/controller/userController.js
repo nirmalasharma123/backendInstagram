@@ -22,15 +22,15 @@ const userSignUP = async function (req, res) {
     if (user) {
       if (user.email === email)
         return res
-          .status(409)
+          .status(400)
           .send({ status: false, message: `${email} is already in use` });
       if (user.phoneNo === phoneNo)
         return res
-          .status(409)
+          .status(400)
           .send({ status: false, message: `${phoneNo} already in use` });
       if (user.userName === userName)
         return res
-          .status(409)
+          .status(400)
           .send({ status: false, message: `${userName} already in use` });
     }
 

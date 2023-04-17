@@ -64,7 +64,7 @@ let updatePost = async function (req, res) {
 
   if (findPost.postedBy != req.decode)
     return res
-      .status(400)
+      .status(403)
       .send({ status: false, message: "excess denied !!!" });
   let files = req.files;
 
@@ -112,7 +112,7 @@ const deletePost = async function (req, res) {
 
   if (findPost.postedBy != req.decode)
     return res
-      .status(400)
+      .status(403)
       .send({ status: false, message: "excess denied !!!" });
 
   await postModel.findByIdAndUpdate(postId, { isDeleted: true }, { new: true });
@@ -133,39 +133,44 @@ const deletePost = async function (req, res) {
 const getAllPostsFollowing = async function (req, res) {
 
   try{
+    const loggedInUserId = req.decode;
+    const loggedInUserProfile = await profileModel.findOne({
+      profileOf: loggedInUserId,
+    });
 
-  const loggedInUserId = req.decode;
-  const loggedInUserProfile = await profileModel.findOne({
-    profileOf: loggedInUserId
-  });
+    if (!loggedInUserId)
+      return res.status(400).send({ status: false, message: "No user found" });
 
-  if(!loggedInUserId) return res.status(400).send({status:false,message:"No user found"})
+    const following = loggedInUserProfile.following;
+    if (following.length == 0) {
+      let posts = await postModel
+        .find({ isDeleted: false })
+        .populate("postedBy", { userName: 1, _id: 0 })
+        .populate("postedBy", " userName photo ")
+        .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
+        .sort("-createdAt");
 
-  const following = loggedInUserProfile.following;
-  if (following.length == 0){
+      return res
+        .status(200)
+        .send({ status: true, message: "All posts", data: posts });
+    }
+    if (following.length == 0)
+      return res.status(400).send({ status: false, message: "No post found" });
 
-      let posts=await postModel.find({isDeleted:false}).populate("postedBy",{userName:1,_id:0}) .populate("postedBy", " userName photo ")
+    const posts = await postModel
+      .find({ postedBy: { $in: following }, isDeleted: false })
+      .populate("postedBy", " userName photo ")
       .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
-      .sort("-createdAt");  
+      .sort("-createdAt");
 
-      return res.status(200).send({status:true,message:"All posts",data:posts})
+    if (posts.length == 0)
+      return res.status(400).send({ status: false, message: "No post yet !!" });
 
-  }
-   if(following.length==0) return res.status(400).send({status:false,message:"No post found"})
-
-  const posts = await postModel
-    .find({ postedBy: { $in: following },isDeleted:false})
-    .populate("postedBy", " userName photo ")
-    .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
-    .sort("-createdAt");
-
-    if(posts.length==0) return res.status(400).send({status:false,message:"No post yet !!"})
-
-  return res.status(200).send({
-    status: true,
-    message: "Following posts fetched successfully",
-    data: posts,
-  })
+    return res.status(200).send({
+      status: true,
+      message: "Following posts fetched successfully",
+      data: posts,
+    });
   }catch(err){
     return res.status(500).send({status:false,message:err.message})
   }

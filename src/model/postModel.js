@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const postSchema = new mongoose.Schema({
     photo:{
         type:String,
-        defult:"no photo",
+        default:"no photo",
     },
     postedBy:{
         type:mongoose.Schema.Types.ObjectId,

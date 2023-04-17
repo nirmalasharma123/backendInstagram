@@ -79,7 +79,7 @@ const updateProfile = async function (req, res) {
 
     if (req.decode != findProfile.profileOf)
       return res
-        .status(400)
+        .status(403)
         .send({ status: false, message: "You are not authorization for this" });
 
     let updateProfile = await profileModel
