@@ -55,7 +55,7 @@ const getProfile = async function (req, res) {
   }
 };
 
-/////updateprofile  updating users profile pic and bio
+/////updatedprofile  updating users profile pic and bio
 
 
 

@@ -13,6 +13,7 @@ const createPost = async function (req, res) {
     let data = req.body;
 
     data.postedBy = req.decode;
+
     if (files && files.length > 0) {
       let uploadUrl = await uploadFile(files[0]);
       data.photo = uploadUrl;
@@ -21,6 +22,11 @@ const createPost = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please Provide Image File" });
     }
+         
+     let profile = await profileModel.findOne({profileOf:req.decode});
+     if(!profile) return res.status(404).send({status:false,message:"No user found"});
+     data.profileId = profile._id;
+
     if (data.caption && data.caption.length > 500) {
       return res
         .status(400)
@@ -141,8 +147,8 @@ const getAllPostsFollowing = async function (req, res) {
     ) {
       let posts = await postModel
         .find({ isDeleted: false })
-        .populate("postedBy", { userName: 1, _id: 0 })
-        .populate("postedBy", " userName photo ")
+        .populate("postedBy",{userName:1,_id:1})
+        .populate("profileId",{profilePic:1,_id:1})
         .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
         .sort("-createdAt");
 
@@ -154,7 +160,8 @@ const getAllPostsFollowing = async function (req, res) {
     const following = loggedInUserProfile.following;
     const posts = await postModel
       .find({ postedBy: { $in: following }, isDeleted: false })
-      .populate("postedBy", " userName photo ")
+      .populate("profileId",{profilePic:1,_id:1})
+      .populate("postedBy",{userName:1,_id:1})
       .select("-likes -comments  -createdAt -updatedAt -__v -isDeleted")
       .sort("-createdAt");
 

@@ -63,6 +63,8 @@ const getAllComments = async function (req, res) {
         isDeleted: 0,
       });
 
+      if(!post) return res.status(400).send({status:false,message:"NO post found"})
+
     let findProfile = await profileModel.findOne({ profileOf: post.postedBy });
     if (!findProfile)
       return res.status(404).send({ status: false, message: "no user found" });
@@ -209,6 +211,9 @@ const getLikedUsers = async function (req, res) {
     let postId = req.params.postId;
 
     let likes = await postModel.findOne({ _id: postId, isDeleted: false });
+    if(!likes) return res.status(400).send({status:false,message:"No post found"})
+
+
     let findUserProfile = await profileModel
       .findOne({ profileOf: likes.postedBy })
       .populate("profileOf", { userName: 1 });

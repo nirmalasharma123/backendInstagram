@@ -21,11 +21,18 @@ const postSchema = new mongoose.Schema({
     type: Number,
     default: 0,   
   },
+  profileId:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"profile",
+    required:true
+
+  },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   commentsCount: {
     type: Number,
     default: 0,
   },
+
   isDeleted: {
     type: Boolean, 
     default: false 

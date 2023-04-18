@@ -50,8 +50,7 @@ const userSignUP = async function (req, res) {
       .status(201)
       .send({
         status: true,
-        message: "User created successfully",
-        data: userCreated,
+        message: "User created successfully"
       });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
