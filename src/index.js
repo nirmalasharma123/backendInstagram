@@ -4,7 +4,6 @@ const multer = require("multer");
 const cors = require("cors")
 const router = require("./router/router");
 const app= express();
-require('dotenv').config()
 
 app.use(express.json());
 app.use(multer().any());
