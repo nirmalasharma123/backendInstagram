@@ -8,7 +8,7 @@ The project includes the following models:
 User Model
 The user model represents a user in the system.
 
-javascript
+
 ```javascript
 const mongoose = require("mongoose");
 
@@ -47,10 +47,11 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);
+```
 Profile Model
 The profile model represents a user's profile information.
 
-javascript
+```javascript
 const mongoose = require("mongoose");
 
 const profileSchema = new mongoose.Schema({
@@ -84,10 +85,11 @@ const profileSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model("Profile", profileSchema);
+```
 Post Model
 The post model represents a post made by a user.
 
-javascript
+```javascript
 
 const mongoose = require("mongoose");
 
@@ -128,7 +130,10 @@ const postSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model("Post", postSchema);
+```
 Comment Model
+
+```javascript
 The comment model represents a comment made on a post.
 
 const mongoose = require("mongoose");
@@ -160,10 +165,11 @@ const commentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model("Comment", commentSchema);
+```
 Reply Model
 The reply model represents a reply to a comment on a post.
 
-
+```javascript
 const mongoose = require("mongoose");
 
 const replySchema = new mongoose.Schema({
@@ -191,7 +197,6 @@ const replySchema = new mongoose.Schema({
         default: false
     }
 }, { timestamps: true });
-
 ```
 module.exports = mongoose.model("Reply", replySchema);
 Functionality
